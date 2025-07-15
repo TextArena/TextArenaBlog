@@ -112,20 +112,20 @@ It was clear we had to re-built, and not just quickly but with scalability at th
 ## Version 2: Sleepless Fixes
 This brings us to version 2, which we built in around 1 week of 18-20h work days. We realized the repeated client side API calls to check whether it is the players turn etc. are simply not scalable. We would have to replace them with WebSockets and ensure the monolith backend will not be the single point of failure for the system. Thus, we started re-writing the frontend, backend and python package.
 
-Now, this is obvioulsy not an ad, but man, using **v0** by vercel was such a life saver! It was incredibly easy to use, even for somebody with zero frontend experience. By simply prompting, we were able to rebuild around 70% of the website. This is also where we implemented the first major fix by letting the frontend coomunicate directly with the database, bypassing the monolith backend entirely. This change was especially necessary for the leaderboard which is arguably the most important component of the platform.
+Now, this is obvioulsy not an ad, but man, using **v0** by vercel was such a life saver! It was incredibly easy to use, even for somebody with zero frontend experience. By simply prompting, we were able to rebuild around 70% of the website. This is also where we implemented the first major fix by letting the frontend communicate directly with the database, bypassing the monolith backend entirely. This change was especially necessary for the leaderboard which is arguably the most important component of the platform.
 
 Secondly, we updated the backend and python package to work with WebSockets. Shoutout to **AWS** who were kind enough to sponsor TextArena with enough credits to rent a decent backend server for a year (solving the ngrok problem as well), and **OpenRouter** who sponsored credits so we don't have to pay for the models hosted out of pocket. With these in place, we migrated the system to WebSockets. While we weren't experts in server architectures etc., we opted for a single, large server that handled everything--from signing up new models to matchmaking and game-play. This performed and scaled reasonably well, but we still had occasional problems; most notably, random disconnections of human players and models during high load. We are still not sure why this happened, which led us to the next big version update.
 
 
 ## Version 3: Good Enough
 
-Whilst iteratively refining the frontend, we managed to port the backend over to a serverless structure on AWS. This was amidst a period of (perhaps overly) ambitious energy when we simultaneously began building VideoGameArena--an arena for video games like Mortal Kombat, Super Mario and Zelda.
+Whilst iteratively refining the frontend, we managed to port the backend over to a serverless structure on AWS. At the time we were also exploring building VideoGameArena--an arena for old-school video games like Mortal Kombat, Super Mario and Zelda.
 
 ![videogamearena](/docs/videogamearena.png)
 
 Not a bad thing actually. The specific nature of VideoGameArena required an Ubuntu-based environment and precise Python library versions. So, we had no choice but to build it serverless. Although that project is now on hold, the experience gave us a better understanding of what serverless really means and how to (or at least try to) design one properly for TextArena.
 
-So, if we’re not wrong, serverless refers to an architecture where we don’t manage long-lived servers ourselves. Instead, with AWS, we containerize the part of our code that handles the game logic and match state (what we now call the game server) using Docker, push it to Amazon ECR, and rely on AWS Fargate to spin up a fresh instance for each match on demand. Once a match ends, the container shuts down automatically. This should give us a clean isolation between games (overcoming version 2's random disconnects), auto-scaling, and a pay-as-you-go cost model.
+So, if we’re not wrong, serverless refers to an architecture where we don’t manage long-lived servers ourselves. Instead, with AWS, Bobby containerize the part of our code that handles the game logic and match state (what we now call the game server) using Docker, push it to Amazon ECR, and rely on AWS Fargate to spin up a fresh instance for each match on demand. Once a match ends, the container shuts down automatically. This should give us a clean isolation between games (overcoming version 2's random disconnects), auto-scaling, and a pay-as-you-go cost model.
 
 So, we began by decoupling the monolith backend server into (1) a game server that will host individual game matches (TextArenaServerless), and (2) a matchmaking server (TextArenaMatchmakingServer). 
 
@@ -159,7 +159,7 @@ To summarise the workflow,
 
 
 # TLDR;
-If you ever build a research demo, we strongly recommend using **v0** by vercel for the frontend, **Supabase** as your database (works great with vercel) and **AWS** to build your backend. If you do have interactive features, making it serverless from the get-go makes a lot of sense. The biggest takeaway by far from all of this all of this is much much easier than it seems. We were originally worried that a WebSocket based architecture, or a serverless one would be too complicated to build, it's not!
+If you ever build a research demo, we strongly recommend using **v0** by vercel for the frontend, **Supabase** as your database (works great with vercel) and **AWS** to build your backend. If you do have interactive features, making it serverless from the get-go makes a lot of sense. The biggest takeaway by far is that building these things is much much easier than it seems. We were originally worried that a WebSocket based architecture, or a serverless one would be too complicated to build, it's not!
 
 Looking back, we didn’t set out to build a robust competition platform. But just by sticking with it and solving one problem at a time, that’s exactly where we ended up. And if we had to do it again, starting with a very simple first version is still the way to go. Your website crashing because it got too popular is a good thing, and if you are willing to spend a sleepless week fixing everything, it is good enough!
 
@@ -167,7 +167,7 @@ Since we didn't have anybody we could ask questions about any of this, if you ar
 
 
 # Open Source
-As promised, here are the links to all three codebases. They are not necessarily well commented and there is no documentation at all (at some point we aim to add both).
+As promised, here are the links to all four codebases. They are not necessarily well commented and there is no documentation at all (at some point we aim to add both).
 
 - The TextArena python package: https://github.com/LeonGuertler/TextArena
 - The TextArena Frontend: https://github.com/LeonGuertler/TextArena-website
