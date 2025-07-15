@@ -1,0 +1,10 @@
+colorlog
+supabase
+fastapi
+uvicorn
+python-dotenv
+numpy
+boto3
+requests
+tabulate
+textarena
