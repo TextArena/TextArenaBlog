@@ -7,7 +7,7 @@
   <h1>How we built TextArena</h1>
 </div>
 
-Neither of us (Bobby and Leon) had any frontend or backend experience (and SWE experience for that matter) before building TextArena. The repository and pip package were no problem, as we are comfortable with Python etc., but implementing the backend and frontend generally left us with a big question mark. Fortunately, we ended up making it work; acquiring a lot of learnings along the way. 
+Neither of us (Leon and Bobby) had any frontend or backend experience (and SWE experience for that matter) before building TextArena. The repository and pip package were no problem, as we are comfortable with Python etc., but implementing the backend and frontend generally left us with a big question mark. Fortunately, we ended up making it work; acquiring a lot of learnings along the way. 
 
 As research is shifting towards interactive agents and evals, we thought it would be valuable to share these learnings with other researchers so you don't have to suffer through the same process. As part of this, we are also open-sourcing both the backend and the frontend code (under the MIT license). So, by all means please feel free to copy any (or all) of it. 
 
@@ -78,7 +78,7 @@ while not done:
 rewards = env.close()
 ```
 
-\> If you are keen, we believe the first version used was [this](https://github.com/LeonGuertler/TextArena/blob/8061407d900b120eaadd2b4c4fbb6f991ad4c7c9/textarena/API/API_client.py).
+> If you are keen, we believe the first version used was [this](https://github.com/LeonGuertler/TextArena/blob/8061407d900b120eaadd2b4c4fbb6f991ad4c7c9/textarena/API/API_client.py).
 
 The inital `.register_online_model` call would call a simple API endpoint on the backend that will do some basic checks on the information (i.e. whether the model already exists etc.), before adding the user to our **Supabase** database. In hindsight, using Supabase for the get-go was one of the things we got right (and was a recommendation by [Henry Mao](https://x.com/Calclavia)). 
 
@@ -131,11 +131,11 @@ So, we began by decoupling the monolith backend server into (1) a game server th
 
 One learning from the matchmaking server design is that we initially designed it with AWS Lambda. However, Lambda’s stateless nature made it difficult to maintain real-time matchmaking logic and track players in queue. Worse, our cost estimates showed that the volume of daily calls would exceed a dedicated EC2 instance. Given these trade-offs, we decided to host our matchmaking server on an EC2 instance running FastAPI.
 
-Again, not to go into an unnecessary amount of detail, but here's how we designed our matchmaking. We opt for a probabilistic scoring system that increases as players wait longer in the queue and as their TrueSkill levels converge using the `calculate_match_probability()`. For multiplayer games, we also factor in the group size required (`calculate_multiplayer_match_probability()`). Additionally, we apply a penalty factor when both players are standard and non-human models (aka, models from official AI labs). This is to encourage more diverse matchups and prioritize humans or user-submitted models in matches. Overall, we find that this probability-based approach ensures fairness and responsiveness for players. 
+Again, not to go into an unnecessary amount of detail, but here's how we designed our matchmaking. We opt for a probabilistic scoring system that increases as players wait longer in the queue and as their TrueSkill levels converge using the [`calculate_match_probability()`](https://github.com/TextArena/TextArenaBlog/blob/8379f89cc405ed5a424fd470b39c89c145e14f39/TextArenaMatchmakingServer/utils.py#L394). For multiplayer games, we also factor in the group size required ([`calculate_multiplayer_match_probability()`](https://github.com/TextArena/TextArenaBlog/blob/8379f89cc405ed5a424fd470b39c89c145e14f39/TextArenaMatchmakingServer/utils.py#L433)). Additionally, we apply a penalty factor when both players are standard and non-human models (aka, models from official AI labs). This is to encourage more diverse matchups and prioritize humans or user-submitted models in matches. Overall, we find that this probability-based approach ensures fairness and responsiveness for players. 
 
-Once a match is made, players are directed to their assigned game server room which is essentially a dedicated ECS Fargate task. To ensure a decent queue experience, we thought about making the queues efficient. So, we wrote a function called `run_server_allocation()` that will maintain a server pool of pre-warmed tasks that are ready to host a match. Once a match is found, the TextArenaMatchmakingServer will assign one of these ready-to-go Fargate task to the players. We then dynamically register the task with an Application Load Balancer (ALB) via `register_fargate_task_to_alb()`. To our understanding, this process creates a unique target group per game, registers the task's private IP registered to it, and adds a path-based listener rule (e.g., /game/\<game_id\>*) that routes traffic to the correct task. The result is a clean and reliable connection that allows the players to connect via a stable WebSocket URL like wss://gamehost.textarena.ai/game/\<game_id\>.
+Once a match is made, players are directed to their assigned game server room which is essentially a dedicated ECS Fargate task. To ensure a decent queue experience, we thought about making the queues efficient. So, we wrote a function called [`run_server_allocation()`](https://github.com/TextArena/TextArenaBlog/blob/8379f89cc405ed5a424fd470b39c89c145e14f39/TextArenaMatchmakingServer/utils.py#L793) that will maintain a server pool of pre-warmed tasks that are ready to host a match. Once a match is found, the TextArenaMatchmakingServer will assign one of these ready-to-go Fargate task to the players. We then dynamically register the task with an Application Load Balancer (ALB) via [`register_fargate_task_to_alb()`](https://github.com/TextArena/TextArenaBlog/blob/8379f89cc405ed5a424fd470b39c89c145e14f39/TextArenaMatchmakingServer/utils.py#L76). To our understanding, this process creates a unique target group per game, registers the task's private IP registered to it, and adds a path-based listener rule (e.g., /game/\<game_id\>*) that routes traffic to the correct task. The result is a clean and reliable connection that allows the players to connect via a stable WebSocket URL like wss://gamehost.textarena.ai/game/\<game_id\>.
 
-You can find the above four functions in the `TextArenaMatchmakingServer` repo.
+You can find the above four functions in the [`TextArenaMatchmakingServer`](https://github.com/TextArena/TextArenaBlog/tree/main/TextArenaMatchmakingServer) repo.
 
 Finally, the matchmaking server then sends the game URL to each client, who disconnects from TextArenaMatchmakingServer and connects directly to the assigned TextArenaServerless. Once the game concludes, the game server cleans itself up by removing its ALB routing rule, updating results to Supabase, and shutting down the ECS task. 
 
@@ -163,15 +163,15 @@ If you ever build a research demo, we strongly recommend using **v0** by vercel 
 
 Looking back, we didn’t set out to build a robust competition platform. But just by sticking with it and solving one problem at a time, that’s exactly where we ended up. And if we had to do it again, starting with a very simple first version is still the way to go. Your website crashing because it got too popular is a good thing, and if you are willing to spend a sleepless week fixing everything, it is good enough!
 
-Since we didn't have anybody we could ask questions about any of this, if you are building a research demo, and have any specific questions about how to build something or just want feedback, please feel very free to ask us on discord or email either of us (guertlero@cfar.a-star.edu.sg; chengxy@i2r.a-star.edu.sg).
+Since we didn't have anybody we could ask questions about any of this, if you are building a research demo, and have any specific questions about how to build something or just want feedback, please feel very free to ask us on discord or email either of us ([guertlero@cfar.a-star.edu.sg](mailto:guertlero@cfar.a-star.edu.sg); [chengxy@i2r.a-star.edu.sg](mailto:chengxy@i2r.a-star.edu.sg)).
 
 
 # Open Source
 As promised, here are the links to all four codebases. They are not necessarily well commented and there is no documentation at all (at some point we aim to add both).
 
-- The TextArena python package: https://github.com/LeonGuertler/TextArena
-- The TextArena Frontend: https://github.com/LeonGuertler/TextArena-website
-- The TextArena Matchmaking server: https://github.com/TextArena/TextArenaBlog/tree/main/TextArenaMatchmakingServer
-- The TextAren Serverless code: https://github.com/TextArena/TextArenaBlog/tree/main/TextArenaServerless
+- [The TextArena python package](https://github.com/LeonGuertler/TextArena)
+- [The TextArena Frontend](https://github.com/LeonGuertler/TextArena-website)
+- [The TextArena Matchmaking server](https://github.com/TextArena/TextArenaBlog/tree/main/TextArenaMatchmakingServer)
+- [The TextArena Serverless code](https://github.com/TextArena/TextArenaBlog/tree/main/TextArenaServerless)
 
 Also by all means, if you are keen please feel free to contribute to any of these four.
