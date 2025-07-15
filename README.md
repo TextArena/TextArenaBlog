@@ -4,10 +4,8 @@
     <img alt="TextArena logo" src="/docs/ta_white.svg" width="25%" height="25%">
   </picture>
 
-  <h1>Blog</h1>
+  <h1>How we built TextArena</h1>
 </div>
-
-# How we built TextArena
 
 Neither of us (Bobby and Leon) had any frontend or backend experience (and SWE experience for that matter) before building TextArena. The repository and pip package were no problem, as we are comfortable with Python etc., but implementing the backend and frontend generally left us with a big question mark. Fortunately, we ended up making it work; acquiring a lot of learnings along the way. 
 
