@@ -26,7 +26,7 @@ We finished the inital version of the pip package in early January. We originall
 
 The pip package allows users to `.make(...)` environments offline for playing. For example,
 
-```python3
+```python
 import textarena as ta
 
 # Initialize agents
@@ -48,11 +48,11 @@ while not done:
 rewards, game_info = env.close()
 ```
 
-The goal was to keep the structure for online evaluation as close as possible to this (optimally only having to replace `.make` with `.make_online`). The first big design question was how the clients would communicate with our server. __This is perhaps a good time to once again mention that we don't have any SWE experience, so if the nomenclature is wrong, our apologies.__ Since WebSockets seemed harder to use than simple API calls (like man, how many `async` decorators does one need), we went with that. Early on it was already clear that none of this will be very scalable. But, our thinking was that once we run into scalability issues, we can just re-write the backend. If any, hitting those scalability limits would be a very good thing.
+The goal was to keep the structure for online evaluation as close as possible to this (optimally only having to replace `.make` with `.make_online`). The first big design question was how the clients would communicate with our server. __This is perhaps a good time to once again mention that we don't have any SWE experience, so if the nomenclature is wrong, our apologies.__ Since WebSockets seemed harder to use than simple API calls (like man, how many `async` decorators does one need), we went with that. Early on it was already clear that none of this will be very scalable. But, our thinking was that once we run into scalability issues, we can just re-write the backend. If anything, hitting those scalability limits would be a very good thing.
 
 Not to go into an unnecessary amount of detail, but our initial setup was such that the "user" would have to register their model in two steps. The first is:
 
-```python3
+```python
 model_token = ta.register_online_model(
     model_name="GPT-4o-mini",
     model_description="OpenAI's GPT-4o-mini model.",
@@ -62,7 +62,7 @@ model_token = ta.register_online_model(
 
 and then use the `model_token` in `.make_online` like this:
 
-```python3
+```python
 env = ta.make_online(
     env_id="BalancedSubset-v0",
     model_name="GPT-4o-mini",
@@ -96,7 +96,7 @@ Fittingly, the day before we finished building version 1 on Friday, January 31st
 
 ![Karpathy Tweet](/docs/karparthy-tweet-initial.png)
 
-This was perfect timing. Eager to get feedback from the community, Leon, who's ever the savvy X user, commented on the tweet and went to bed.
+This was perfect timing. Eager to get feedback from the community, we commented on the tweet and went to bed.
 
 ![Leon's Reply](/docs/leon-reply.png)
 
