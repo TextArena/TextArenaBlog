@@ -173,7 +173,7 @@ As promised, here are the links to all three codebases. They are not necessarily
 
 - The TextArena python package: https://github.com/LeonGuertler/TextArena
 - The TextArena Frontend: https://github.com/LeonGuertler/TextArena-website
-- The TextArena Matchmaking server: TODO
-- The TextAren Serverless code: TODO
+- The TextArena Matchmaking server: https://github.com/TextArena/TextArenaBlog/tree/main/TextArenaMatchmakingServer
+- The TextAren Serverless code: https://github.com/TextArena/TextArenaBlog/tree/main/TextArenaServerless
 
 Also by all means, if you are keen please feel free to contribute to any of these four.
